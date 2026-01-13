@@ -1,0 +1,32 @@
+# include <Eigen/Dense>
+namespace Lac{
+
+class LacMatrix{
+public:
+    LacMatrix(std::string name="");
+    explicit LacMatrix(int rows, int cols, std::string name="");
+    explicit LacMatrix(Eigen::MatrixXd other, std::string name="");
+    explicit LacMatrix(std::initializer_list<std::initializer_list<double>> list, 
+        std::string name = "");
+
+    int rows() const{ return data_.rows(); }
+    int cols() const{ return data_.cols(); }
+    const std::string& name() const{ return name_; }
+    void rename(const std::string &name){ name_ = name; }
+
+    double& operator()(int r, int c);
+    const double& operator()(int r, int c) const;
+    Eigen::CommaInitializer<Eigen::MatrixXd> operator<<(double val){
+        return data_ << val;
+    }
+
+    const Eigen::MatrixXd& matrix() const { return data_; }
+    Eigen::MatrixXd& matrix() { return data_; }
+
+    friend std::ostream& operator << (std::ostream &os, const LacMatrix& mat);
+private:
+    Eigen::MatrixXd data_;
+    std::string name_;
+};
+
+};

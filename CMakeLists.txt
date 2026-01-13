@@ -16,9 +16,12 @@ FetchContent_Declare(
 # 下载并让项目可见
 FetchContent_MakeAvailable(eigen)
 
+include_directories(include)
+
 # 2. 定义我们的核心计算器程序（现在只有 main.cpp，以后可以把库拆出去）
 add_executable(lac_cli 
-    src/main.cpp 
+    src/main.cpp
+    src/LacMatrix.cpp
 )
 
 # 3. 关联 Eigen (Eigen 是 header-only 的，非常轻量)
