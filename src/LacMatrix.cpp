@@ -54,4 +54,4 @@ std::ostream& operator << (std::ostream &os, const LacMatrix& mat){
     os << mat.data_;
     return os;
 }
-};
+} //namespace Lac

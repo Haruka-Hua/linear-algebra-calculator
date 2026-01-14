@@ -22,6 +22,7 @@ include_directories(include)
 add_executable(lac_cli 
     src/main.cpp
     src/LacMatrix.cpp
+    src/LacEngine.cpp
 )
 
 # 3. 关联 Eigen (Eigen 是 header-only 的，非常轻量)
