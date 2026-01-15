@@ -1,5 +1,6 @@
 # pragma once
 # include <Eigen/Dense>
+# include "LacException.hpp"
 namespace Lac{
 
 class LacMatrix{
@@ -20,6 +21,7 @@ public:
     void rename(const std::string &name){ name_ = name; }
 
     //visitor
+    const void visitCheck(int r, int c) const;
     double& operator()(int r, int c);
     const double& operator()(int r, int c) const;
     Eigen::CommaInitializer<Eigen::MatrixXd> operator<<(double val){

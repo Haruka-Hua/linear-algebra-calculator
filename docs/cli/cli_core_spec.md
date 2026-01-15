@@ -27,7 +27,7 @@
 ### 操作符契约 (Minimal Set)
 | 语法 | 说明 | 目的 |
 | :--- | :--- | :--- |
-| `double& operator()(int r, int c)` | 双偏置访问器 | 实现直接对矩阵任意格的读和写。 |
+| `double& operator()(int r, int c)` | 双偏置访问器 | 实现直接对矩阵任意格的读和写，**访问下标从1开始，符合数学习惯**。 |
 | `os << matrix` | 流输出流重载 | 实现控制台自动对齐排版显示。 |
 | `matrix << content` | 逗号初始化 | 提供Eigen的逗号初始化接口。 |
 ---
@@ -55,13 +55,27 @@
 
 ---
 
-## 4. 后续扩展 (Stage 2)
-1. **表达式解析 (Expression Parser)**: 允许用户直接输入字符公式（如 `(A+B)*C`）。
-2. **Flutter FFI**: 将 C 风格指针接口暴露，支持双平台通信。
-3. **缓存系统**: 对特大矩阵计算耗时项目进行元数据标记缓存。
+## 4. 计算异常处理（Exception Handling）
+### 计算时可能出现的异常
+1. `operator +`和`operator -`：相加/减的两个矩阵必须形状相同，否则应抛出异常（维度异常）
+2. `operator *(const LacMatrix& a, const LacMatrix& b)`：a的列数等于b的行数，否则应当抛出异常（维度异常）
+3. `trace``det```inverse``adjoint``pow``eigenValueSymmetric`：输入的矩阵应当是方阵，否则应当抛出异常（维度异常）
+4. `inverse``pow(exp<0)`时应当检查矩阵是否可逆，不可逆需要抛出异常（数学异常）
+5. 当`solve`无解时，应当抛出异常，由调用者决定是否调用最小二乘解（数学异常）
+
+### 异常系统设计
+1. 原则
+“计算/存储/展示”业务上进行分离，并支持后续与Flutter的对接，采用 结构化数据 + 分类分段代码
+2. 异常分类
+    - 基类：`LacException: std::runtime_error`
+        - 维度类异常：`LacDimensionException`(code: 1xxx)，处理计算时矩阵维度不匹配的问题，以及访问的越界问题
+        - 数学异常：`LacMathException`(code: 2xxx)，处理矩阵不可逆/方程无解导致的数学问题
+        - 状态异常：`LacStateException`(code: 3xxx)，处理其它系统问题，如非法的传参、内存溢出
+3. 数据载荷：每个异常类中携带错误的具体细节，存储在固定的槽位中
+    - `ErrorCode(int)`：错误码，指定了具体的错误类型
+    - `Int Parameters(int args[6])`：6个存放int参数的槽位，例如在维度异常中，可以使用前四个槽位表示两个矩阵的行列数
+    - `Double Parameters(double values[2])`：2个存放double的槽位，用于存储一些精度信息
+    - `Formatted Message(std::string)`：返回格式化的信息
+    可能的格式：    `[LAC_ERR_CODE]: Developer context description. (Details: data1 vs data2)`
 
 ---
-
-## 5. 开发约束 (Development Constraints)
-- **Error Handling**: 在这一阶段，若遇到奇异阵取逆或维度不匹配，统一打印错误信息或抛出显式的 `std::runtime_error`。
-- **Precision**: 默认内部采用 `double` 计算以满足大部分通用场合。

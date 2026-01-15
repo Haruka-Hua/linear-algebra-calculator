@@ -3,13 +3,28 @@
 
 namespace Lac{
 //Dimension 1: override global operators
+void checkAddOperation(const LacMatrix& a, const LacMatrix& b, const std::string& op){
+    if(a.rows()!=b.rows() || a.cols()!=b.cols())
+        throw LacDimensionException(LacErrorCode::ADD_DIMENSION_DISMATCH,
+        "Trying to " + op + " two matrices with different shapes.",
+        a.rows(),a.cols(),b.rows(),b.cols());
+}
+void checkMultiplyOperation(const LacMatrix& a, const LacMatrix& b){
+    if(a.cols()!=b.rows())
+        throw LacDimensionException(LacErrorCode::MULTIPLY_DIMENSION_DISMATCH,
+        "Trying to multiply two matrices with incompatible shapes.",
+        a.rows(),a.cols(),b.rows(),b.cols());
+}
 LacMatrix operator +(const LacMatrix& a, const LacMatrix& b){
+    checkAddOperation(a,b,"add");
     return LacMatrix(a.matrix() + b.matrix());
 }
 LacMatrix operator -(const LacMatrix& a, const LacMatrix& b){
+    checkAddOperation(a,b,"subtract");
     return LacMatrix(a.matrix() - b.matrix());
 }
 LacMatrix operator *(const LacMatrix& a, const LacMatrix& b){
+    checkMultiplyOperation(a,b);
     return LacMatrix(a.matrix() * b.matrix());
 }
 LacMatrix operator *(const LacMatrix& a, double k){
@@ -20,10 +35,16 @@ LacMatrix operator *(double k, const LacMatrix& a){
 }
 
 //Dimension 2: operations and properties
+void LacEngine::checkSquaredOperation(const LacMatrix& mat, const std::string& op){
+    if(mat.rows()!=mat.cols())
+        throw LacDimensionException(LacErrorCode::SQUARE_DIMENSION_DISMATCH,
+        "Trying to find the " + op + " of a non-square matrix.",mat.rows(),mat.cols());
+}
 LacMatrix LacEngine::transpose(const LacMatrix& mat){
     return LacMatrix(mat.matrix().transpose());
 }
 double LacEngine::trace(const LacMatrix& mat){
+    checkSquaredOperation(mat,"trace");
     return mat.matrix().trace();
 }
 int LacEngine::rank(const LacMatrix& mat){
@@ -32,14 +53,17 @@ int LacEngine::rank(const LacMatrix& mat){
     return lu.rank();
 }
 double LacEngine::det(const LacMatrix& mat){
+    checkSquaredOperation(mat,"determinant");
     Eigen::FullPivLU<Eigen::MatrixXd> lu(mat.matrix());
     return lu.determinant();
 }
 LacMatrix LacEngine::inverse(const LacMatrix& mat){
+    checkSquaredOperation(mat,"inverse");
     Eigen::FullPivLU<Eigen::MatrixXd> lu(mat.matrix());
     return LacMatrix(lu.inverse());
 }
 LacMatrix LacEngine::adjoint(const LacMatrix& mat){
+    checkSquaredOperation(mat,"adjoint");
     Eigen::FullPivLU<Eigen::MatrixXd> lu(mat.matrix());
     return LacMatrix(lu.adjoint());
 }
@@ -48,7 +72,6 @@ LacMatrix LacEngine::rref(const LacMatrix& mat){
     int rows = A.rows();
     int cols = A.cols();
     double epsilon = 1e-9;
-
     int pivot_row = 0;
     for(int c = 0; (c<cols)&&(pivot_row<rows);c++){
         int max_row = pivot_row;
@@ -83,10 +106,10 @@ LacMatrix LacEngine::rref(const LacMatrix& mat){
             }
         }
     }
-
     return LacMatrix(A);
 }
 LacMatrix LacEngine::pow(const LacMatrix& mat, int exp){
+    checkSquaredOperation(mat,"power");
     if(exp<0) 
         return pow(inverse(mat),-exp);
     if(exp==0) 
@@ -117,8 +140,9 @@ LacMatrix LacEngine::solveLeastSquares(const LacMatrix& a, const LacMatrix& b){
     Eigen::MatrixXd x = a.matrix().colPivHouseholderQr().solve(b.matrix());
     return LacMatrix(x);
 }
-std::pair<LacMatrix,LacMatrix> LacEngine::eigenValuesSymmetric(const LacMatrix& a){
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(a.matrix());
+std::pair<LacMatrix,LacMatrix> LacEngine::eigenValuesSymmetric(const LacMatrix& mat){
+    checkSquaredOperation(mat,"eigen values and vectors");
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(mat.matrix());
     return {
         LacMatrix(solver.eigenvalues().asDiagonal()),
         LacMatrix(solver.eigenvectors())

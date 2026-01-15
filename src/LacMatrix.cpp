@@ -38,12 +38,21 @@ LacMatrix::LacMatrix(std::initializer_list<std::initializer_list<double>> list,
     }
 }
 
+const void LacMatrix::visitCheck(int r, int c) const{
+    if(r > data_.rows() || r <= 0 || c > data_.cols() || c <= 0)
+        throw LacDimensionException(LacErrorCode::INDEX_OUT_OF_RANGE,
+            "Trying to access element out of range.",r,c,data_.rows(),data_.cols());
+}
+
 double& LacMatrix::operator()(int r, int c){
-    return data_(r,c);
+    // visit matrix starting from index 1
+    visitCheck(r,c);
+    return data_(r-1,c-1);
 }
 
 const double& LacMatrix::operator()(int r, int c) const{
-    return data_(r,c);
+    visitCheck(r,c);
+    return data_(r-1,c-1);
 }
 
 std::ostream& operator << (std::ostream &os, const LacMatrix& mat){
