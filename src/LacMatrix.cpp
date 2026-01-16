@@ -6,7 +6,12 @@ namespace Lac{
 LacMatrix::LacMatrix(std::string name):name_(std::move(name)),data_(){}
 
 LacMatrix::LacMatrix(int rows, int cols, 
-    std::string name):data_(rows,cols),name_(std::move(name)){
+    std::string name):name_(std::move(name)){
+        if (rows<0 || cols<0)
+            throw LacDimensionException(LacErrorCode::BAD_ALLOCATION,
+            "Trying to allocate a matrix with a invalid size.",
+            {rows,cols});
+        data_ = Eigen::MatrixXd(rows,cols);
         data_.setZero();
 }
 

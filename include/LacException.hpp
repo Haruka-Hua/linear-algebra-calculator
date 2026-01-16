@@ -4,11 +4,12 @@
 
 namespace Lac{
 enum class LacErrorCode{
-    INDEX_OUT_OF_RANGE = 1001,              //i_arg = {target_r, target_c, matrix_r, matrix_c};
-    ADD_DIMENSION_DISMATCH = 1002,          //i_arg = {a_r, a_c, b_r, b_c};
-    MULTIPLY_DIMENSION_DISMATCH = 1003,     //i_arg = {a_r, a_c, b_r, b_c};
-    SQUARE_DIMENSION_DISMATCH = 1004,       //i_arg = {r, c};
-    LHS_RHS_DISMATCH = 1005,                //i_arg = {lhs_r, lhs_c, rhs_r, rhs_c};
+    BAD_ALLOCATION = 1001,                  //i_arg = {alloc_r, alloc_c};
+    INDEX_OUT_OF_RANGE = 1002,              //i_arg = {target_r, target_c, matrix_r, matrix_c};
+    ADD_DIMENSION_DISMATCH = 1003,          //i_arg = {a_r, a_c, b_r, b_c};
+    MULTIPLY_DIMENSION_DISMATCH = 1004,     //i_arg = {a_r, a_c, b_r, b_c};
+    SQUARE_DIMENSION_DISMATCH = 1005,       //i_arg = {r, c};
+    LHS_RHS_DISMATCH = 1006,                //i_arg = {lhs_r, lhs_c, rhs_r, rhs_c};
 
     DIVISION_BY_ZERO = 2001,    //d_arg = {dividor};
     MATRIX_SINGULAR = 2002,     //i_arg = {rank(A), matrix_r_c}; d_arg = {determinant};

@@ -6,12 +6,11 @@ out/
 
 # IDE
 .vscode/
-.idea/  # 对你的 CLion 很重要，不要把里面的 workspace 配置传上去
+.idea/
+*.iml
 cmake-build-*/
 *.user
 
 # 系统琐事
 .DS_Store
 Thumbs.db
-
-tests/

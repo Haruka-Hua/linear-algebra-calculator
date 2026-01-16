@@ -2,11 +2,15 @@
 
 namespace Lac{
 LacException::LacException(const LacErrorCode code, const std::string& msg):
-    std::runtime_error("LAC-"+std::to_string((int)code)+":"+msg),error_code(code){}
+    std::runtime_error("LAC-"+std::to_string((int)code)+": "+msg),error_code(code){}
 
 const std::string LacException::toString() const{
     switch(error_code){
         //1xxx
+        case LacErrorCode::BAD_ALLOCATION:
+            return 
+                "Trying to allocate a matrix with invalid size: "
+                + std::to_string(i_args[0]) + "x" + std::to_string(i_args[1]);
         case LacErrorCode::INDEX_OUT_OF_RANGE: 
             // 1-based
             return 
@@ -54,7 +58,8 @@ const std::string LacException::toString() const{
 
         case LacErrorCode::INVALID_ARGUMENT:
             return 
-                "Invalid argument provided to function.";
+                "Invalid argument provided to function. Detail:\n"
+                + std::string(what());
 
         case LacErrorCode::OUT_OF_MEMORY:
             return 

@@ -76,8 +76,6 @@ int main() {
     // testAnalysis();
     // testEigenSymmetric();
     // testSolve();
-    LacMatrix mat(2,2);
-    mat << 1,2,3,4;
-    std::cout << mat(2,2);
+    
     return 0;
 }

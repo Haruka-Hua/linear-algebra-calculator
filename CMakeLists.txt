@@ -52,7 +52,7 @@ target_link_libraries(lac_cli PRIVATE lac_core)
 
 # 4. 单元测试目标（使用 GoogleTest + CTest）
 if(BUILD_TESTS)
-    add_executable(lac_tests tests/test_matrix.cpp)
+    add_executable(lac_tests tests/test_core/test_eigen.cpp)
     target_link_libraries(lac_tests PRIVATE lac_core GTest::gtest_main)
 
     include(GoogleTest)

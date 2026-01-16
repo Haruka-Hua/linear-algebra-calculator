@@ -82,7 +82,43 @@ LacMatrix LacEngine::inverse(const LacMatrix& mat){
 LacMatrix LacEngine::adjoint(const LacMatrix& mat){
     checkSquaredOperation(mat,"adjoint");
     Eigen::FullPivLU<Eigen::MatrixXd> lu(mat.matrix());
-    return LacMatrix(lu.adjoint());
+    int rank = lu.rank(), n = mat.rows();
+    // n==1;
+    if(n==1)
+        return LacMatrix({{1}});
+    // r<n-1;
+    if(rank < n-1) {
+        return LacMatrix(Eigen::MatrixXd::Zero(n,n));
+    }
+    double det = lu.determinant();
+    // full rank;
+    if(lu.isInvertible()) {
+        return LacMatrix(det * lu.inverse());
+    }
+    // r == n-1;
+    // This algorithm has time complexity of O(n^4),
+    // so adjoint() should not be applied to enormous matrices.
+    const Eigen::MatrixXd& origin = mat.matrix();
+    Eigen::MatrixXd res(n,n);
+    Eigen::MatrixXd minorMat(n-1,n-1);
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++){
+            int minor_row = 0;
+            for(int r=0;r<n;r++){
+                if(r==i) continue;
+                int minor_col = 0;
+                for(int c=0;c<n;c++){
+                    if(c==j) continue;
+                    minorMat(minor_row, minor_col) = origin(r,c);
+                    minor_col++;
+                }
+                minor_row++;
+            }
+            double cofactor = (((i+j)%2==0)?1.0:-1.0)*minorMat.determinant();
+            res(j,i) = cofactor;
+        }
+    }
+    return LacMatrix(res);
 }
 LacMatrix LacEngine::rref(const LacMatrix& mat){
     Eigen::MatrixXd A = mat.matrix();
@@ -102,17 +138,19 @@ LacMatrix LacEngine::rref(const LacMatrix& mat){
         if(max_val < epsilon){
             for(int r = pivot_row; r < rows; r++){
                 A(r,c) = 0.0;
-                continue;
             }
+            continue;
         }
         if(max_row != pivot_row){
             A.row(pivot_row).swap(A.row(max_row));
         }
         double pivot_val = A(pivot_row,c);
         A.row(pivot_row) /= pivot_val;
-        for(int r=pivot_row+1; r<rows; r++){
-            double factor = A(r,c);
-            A.row(r) -= A.row(pivot_row) * factor;
+        for(int r=0; r<rows; r++){
+            if(r!=pivot_row){
+                double factor = A(r,c);
+                A.row(r) -= A.row(pivot_row) * factor;
+            }
         }
         pivot_row++;
     }
@@ -180,6 +218,10 @@ LacMatrix LacEngine::solveLeastSquares(const LacMatrix& a, const LacMatrix& b){
 }
 std::pair<LacMatrix,LacMatrix> LacEngine::eigenValuesSymmetric(const LacMatrix& mat){
     checkSquaredOperation(mat,"eigen values and vectors");
+    if(!mat.matrix().isApprox(mat.matrix().transpose())){
+        throw LacStateException(LacErrorCode::INVALID_ARGUMENT,
+        "Matrix must be symmetric for this operation.");
+    }
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(mat.matrix());
     return {
         LacMatrix(solver.eigenvalues().asDiagonal()),
