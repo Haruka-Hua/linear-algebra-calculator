@@ -39,9 +39,9 @@ LacMatrix::LacMatrix(std::initializer_list<std::initializer_list<double>> list,
 }
 
 const void LacMatrix::visitCheck(int r, int c) const{
-    if(r > data_.rows() || r <= 0 || c > data_.cols() || c <= 0)
+    if(r > data_.rows() || r < 1 || c > data_.cols() || c < 1)
         throw LacDimensionException(LacErrorCode::INDEX_OUT_OF_RANGE,
-            "Trying to access element out of range.",r,c,data_.rows(),data_.cols());
+            "Trying to access element out of range.",{r,c,static_cast<int>(data_.rows()),static_cast<int>(data_.cols())});
 }
 
 double& LacMatrix::operator()(int r, int c){

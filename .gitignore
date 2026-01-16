@@ -13,3 +13,5 @@ cmake-build-*/
 # 系统琐事
 .DS_Store
 Thumbs.db
+
+tests/

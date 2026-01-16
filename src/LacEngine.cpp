@@ -7,13 +7,18 @@ void checkAddOperation(const LacMatrix& a, const LacMatrix& b, const std::string
     if(a.rows()!=b.rows() || a.cols()!=b.cols())
         throw LacDimensionException(LacErrorCode::ADD_DIMENSION_DISMATCH,
         "Trying to " + op + " two matrices with different shapes.",
-        a.rows(),a.cols(),b.rows(),b.cols());
+        {a.rows(),a.cols(),b.rows(),b.cols()});
 }
 void checkMultiplyOperation(const LacMatrix& a, const LacMatrix& b){
     if(a.cols()!=b.rows())
         throw LacDimensionException(LacErrorCode::MULTIPLY_DIMENSION_DISMATCH,
         "Trying to multiply two matrices with incompatible shapes.",
-        a.rows(),a.cols(),b.rows(),b.cols());
+        {a.rows(),a.cols(),b.rows(),b.cols()});
+}
+void checkDivideOperation(double dividor){
+    if(std::abs(dividor) < std::numeric_limits<double>::epsilon())
+        throw LacMathException(LacErrorCode::DIVISION_BY_ZERO,
+        "Trying to divide something by zero.",{},{dividor});
 }
 LacMatrix operator +(const LacMatrix& a, const LacMatrix& b){
     checkAddOperation(a,b,"add");
@@ -33,12 +38,23 @@ LacMatrix operator *(const LacMatrix& a, double k){
 LacMatrix operator *(double k, const LacMatrix& a){
     return LacMatrix(k * a.matrix());
 }
+LacMatrix operator /(const LacMatrix& a, double k){
+    checkDivideOperation(k);
+    return LacMatrix(a.matrix() / k);
+}
 
 //Dimension 2: operations and properties
 void LacEngine::checkSquaredOperation(const LacMatrix& mat, const std::string& op){
     if(mat.rows()!=mat.cols())
         throw LacDimensionException(LacErrorCode::SQUARE_DIMENSION_DISMATCH,
-        "Trying to find the " + op + " of a non-square matrix.",mat.rows(),mat.cols());
+        "Trying to find the " + op + " of a non-square matrix.",{mat.rows(),mat.cols()});
+}
+void LacEngine::handleSingularMatrix(const Eigen::FullPivLU<Eigen::MatrixXd> &lu){
+    if(!lu.isInvertible())
+        throw LacMathException(LacErrorCode::MATRIX_SINGULAR,
+        "The operation failed because the matrix is singular.",
+        {static_cast<int>(lu.rank()),static_cast<int>(lu.rows())},
+        {lu.determinant()});
 }
 LacMatrix LacEngine::transpose(const LacMatrix& mat){
     return LacMatrix(mat.matrix().transpose());
@@ -60,6 +76,7 @@ double LacEngine::det(const LacMatrix& mat){
 LacMatrix LacEngine::inverse(const LacMatrix& mat){
     checkSquaredOperation(mat,"inverse");
     Eigen::FullPivLU<Eigen::MatrixXd> lu(mat.matrix());
+    handleSingularMatrix(lu);
     return LacMatrix(lu.inverse());
 }
 LacMatrix LacEngine::adjoint(const LacMatrix& mat){
@@ -127,16 +144,37 @@ LacMatrix LacEngine::pow(const LacMatrix& mat, int exp){
 }
 
 //Dimension 3: utilities
+void LacEngine::checkEquationDimension(const LacMatrix& a, const LacMatrix& b){
+    if(a.rows()!=b.rows())
+        throw LacDimensionException(LacErrorCode::LHS_RHS_DISMATCH,
+        "Failed to match LHS and RHS dimensions.",
+        {a.rows(),a.cols(),b.rows(),b.cols()});
+}
 LacMatrix LacEngine::solve(const LacMatrix& a, const LacMatrix& b){
+    checkEquationDimension(a,b);
     auto solver = a.matrix().fullPivLu();
-    if(!solver.isInvertible()){
-        //todo: handle special cases
-        return solveLeastSquares(a,b);
+    int rank_a = solver.rank();
+    //no solution
+    Eigen::MatrixXd augmentation(a.rows(), a.cols()+b.cols());
+    augmentation << a.matrix(), b.matrix();
+    int rank_augmentation = augmentation.fullPivLu().rank();
+    if(rank_a != rank_augmentation){
+        throw LacMathException(LacErrorCode::NO_SOLUTION,
+        "This equation has no solution. Try the least square method.",
+        {rank_a, rank_augmentation},{});
     }
+    //infinite solution
+    if(rank_a != a.cols()){
+        throw LacMathException(LacErrorCode::INFINITE_SOLUTION,
+        "This equation has infinite solution.",
+        {rank_a,a.cols()},{});
+    }
+    //unique solution
     Eigen::MatrixXd x = solver.solve(b.matrix());
     return LacMatrix(x);
 }
 LacMatrix LacEngine::solveLeastSquares(const LacMatrix& a, const LacMatrix& b){
+    checkEquationDimension(a,b);
     Eigen::MatrixXd x = a.matrix().colPivHouseholderQr().solve(b.matrix());
     return LacMatrix(x);
 }
@@ -148,5 +186,4 @@ std::pair<LacMatrix,LacMatrix> LacEngine::eigenValuesSymmetric(const LacMatrix& 
         LacMatrix(solver.eigenvectors())
     };
 }
-
 } //namespace Lac

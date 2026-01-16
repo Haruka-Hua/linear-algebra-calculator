@@ -4,8 +4,9 @@ namespace Lac{
 LacException::LacException(const LacErrorCode code, const std::string& msg):
     std::runtime_error("LAC-"+std::to_string((int)code)+":"+msg),error_code(code){}
 
-std::string LacException::toString(){
+const std::string LacException::toString() const{
     switch(error_code){
+        //1xxx
         case LacErrorCode::INDEX_OUT_OF_RANGE: 
             // 1-based
             return 
@@ -33,6 +34,11 @@ std::string LacException::toString(){
                 "Trying to perform operation that requires square matrix on a non-square matrix: "
                 + std::to_string(i_args[0]) + "x" + std::to_string(i_args[1]);
 
+        //2xxx
+        case LacErrorCode::DIVISION_BY_ZERO:
+            return "Trying to divide something by zero or a very small number: "
+                + std::to_string(d_args[0]);
+                
         case LacErrorCode::MATRIX_SINGULAR:
             return 
                 "Matrix is singular, cannot perform operation. Determinant: "
@@ -42,7 +48,7 @@ std::string LacException::toString(){
             return 
                 "The system of equations has no solution. Try using least squares method.";
 
-        case LacErrorCode::INFINETE_SOLUTION:
+        case LacErrorCode::INFINITE_SOLUTION:
             return 
                 "The system of equations has infinite solutions.";
 
