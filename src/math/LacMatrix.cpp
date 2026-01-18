@@ -1,4 +1,4 @@
-# include "LacMatrix.hpp"
+# include "math/LacMatrix.hpp"
 # include <algorithm>
 
 namespace Lac{

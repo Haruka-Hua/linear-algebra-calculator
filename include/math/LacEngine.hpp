@@ -1,5 +1,5 @@
 # pragma once
-# include "LacMatrix.hpp"
+# include "math/LacMatrix.hpp"
 
 namespace Lac{
 //Dimension 1: override global operators

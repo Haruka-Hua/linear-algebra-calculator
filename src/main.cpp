@@ -1,5 +1,4 @@
-#include "LacMatrix.hpp"
-#include "LacEngine.hpp"
+#include "math/LacEngine.hpp"
 #include <iostream>
 #include <vector>
 #include <cassert>
@@ -72,10 +71,9 @@ void testEigenSymmetric() {
 }
 
 int main() {
-    // testBasics();
-    // testAnalysis();
-    // testEigenSymmetric();
-    // testSolve();
-    
+    testBasics();
+    testAnalysis();
+    testEigenSymmetric();
+    testSolve();
     return 0;
 }

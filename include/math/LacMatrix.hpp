@@ -1,6 +1,6 @@
 # pragma once
 # include <Eigen/Dense>
-# include "LacException.hpp"
+# include "math/LacException.hpp"
 namespace Lac{
 
 class LacMatrix{

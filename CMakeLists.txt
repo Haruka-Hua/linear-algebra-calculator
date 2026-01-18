@@ -39,21 +39,21 @@ endif()
 include_directories(include)
 
 # 3. 将核心实现拆成库，方便主程序与测试共用
-add_library(lac_core STATIC
-    src/LacMatrix.cpp
-    src/LacEngine.cpp
-    src/LacException.cpp
+add_library(lac_math STATIC
+    src/math/LacMatrix.cpp
+    src/math/LacEngine.cpp
+    src/math/LacException.cpp
 )
-target_include_directories(lac_core PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(lac_core PUBLIC Eigen3::Eigen)
+target_include_directories(lac_math PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(lac_math PUBLIC Eigen3::Eigen)
 
 add_executable(lac_cli src/main.cpp)
-target_link_libraries(lac_cli PRIVATE lac_core)
+target_link_libraries(lac_cli PRIVATE lac_math)
 
 # 4. 单元测试目标（使用 GoogleTest + CTest）
 if(BUILD_TESTS)
-    add_executable(lac_tests tests/test_core/test_eigen.cpp)
-    target_link_libraries(lac_tests PRIVATE lac_core GTest::gtest_main)
+    add_executable(lac_tests tests/test_math/test_eigen.cpp)
+    target_link_libraries(lac_tests PRIVATE lac_math GTest::gtest_main)
 
     include(GoogleTest)
     gtest_discover_tests(lac_tests)

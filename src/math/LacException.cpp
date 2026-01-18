@@ -1,4 +1,4 @@
-#include <LacException.hpp>
+#include "math/LacException.hpp"
 
 namespace Lac{
 LacException::LacException(const LacErrorCode code, const std::string& msg):
