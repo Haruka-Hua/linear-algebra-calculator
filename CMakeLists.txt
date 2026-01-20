@@ -44,19 +44,38 @@ add_library(lac_math STATIC
     src/math/LacEngine.cpp
     src/math/LacException.cpp
 )
-target_include_directories(lac_math PUBLIC ${CMAKE_SOURCE_DIR}/include)
+add_library(lac_parser STATIC
+    src/parser/Lexer.cpp
+    src/parser/Parser.cpp
+)
+target_include_directories(lac_math PUBLIC ${CMAKE_SOURCE_DIR}/include/math)
+target_include_directories(lac_parser PUBLIC ${CMAKE_SOURCE_DIR}/include/parser)
 target_link_libraries(lac_math PUBLIC Eigen3::Eigen)
+target_link_libraries(lac_parser PUBLIC Eigen3::Eigen)
 
 add_executable(lac_cli src/main.cpp)
-target_link_libraries(lac_cli PRIVATE lac_math)
+target_link_libraries(lac_cli PRIVATE lac_math lac_parser)
 
 # 4. 单元测试目标（使用 GoogleTest + CTest）
 if(BUILD_TESTS)
-    add_executable(lac_tests tests/test_math/test_eigen.cpp)
-    target_link_libraries(lac_tests PRIVATE lac_math GTest::gtest_main)
-
+    # 数学库测试
+    add_executable(lac_math_tests 
+        tests/test_math/test_eigen.cpp
+        tests/test_math/test_det.cpp
+    )
+    target_link_libraries(lac_math_tests PRIVATE lac_math GTest::gtest_main)
+    
+    # Parser库测试（新增）
+    add_executable(lac_parser_tests  
+        tests/test_parser/test_lexer.cpp
+        tests/test_parser/test_parser.cpp
+        tests/test_parser/test_eval_more.cpp
+    )
+    target_link_libraries(lac_parser_tests PRIVATE lac_parser lac_math GTest::gtest_main)
+    
     include(GoogleTest)
-    gtest_discover_tests(lac_tests)
+    gtest_discover_tests(lac_math_tests)
+    gtest_discover_tests(lac_parser_tests)
 endif()
 
 # 5. 根据系统进行微调（跨平台必备）

@@ -1,6 +1,7 @@
 # pragma once
 # include <Eigen/Dense>
 # include "math/LacException.hpp"
+# include <vector>
 namespace Lac{
 
 class LacMatrix{
@@ -11,10 +12,13 @@ public:
     explicit LacMatrix(Eigen::MatrixXd other, std::string name="");
     explicit LacMatrix(std::initializer_list<std::initializer_list<double>> list, 
         std::string name = "");
+    explicit LacMatrix(const std::vector<std::vector<double>> &vec, std::string name="");
+    LacMatrix(double value, std::string name="");
 
     //get info
     int rows() const{ return data_.rows(); }
     int cols() const{ return data_.cols(); }
+    bool isNumber() const{ return data_.cols()==1 && data_.rows()==1; }
 
     //name handling
     const std::string& name() const{ return name_; }
@@ -24,6 +28,8 @@ public:
     const void visitCheck(int r, int c) const;
     double& operator()(int r, int c);
     const double& operator()(int r, int c) const;
+    operator double() const;
+    operator int() const;
     Eigen::CommaInitializer<Eigen::MatrixXd> operator<<(double val){
         return data_ << val;
     }

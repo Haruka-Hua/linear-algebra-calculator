@@ -31,6 +31,7 @@ public:
     static void checkEquationDimension(const LacMatrix& a, const LacMatrix& b);
     static LacMatrix solve(const LacMatrix& a, const LacMatrix& b);
     static LacMatrix solveLeastSquares(const LacMatrix& a, const LacMatrix& b);
+    // return pair{eigen_value, eigen_vector};
     static std::pair<LacMatrix,LacMatrix> eigenValuesSymmetric(const LacMatrix& mat);
 };
 } //namespace Lac

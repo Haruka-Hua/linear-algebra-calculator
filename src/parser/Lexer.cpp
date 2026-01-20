@@ -42,6 +42,8 @@ Token Lexer::convert(const std::string& stoken){
         return Token(TokenType::R_BRACKET,stoken);
     if (stoken==";")
         return Token(TokenType::SEMICOLON,stoken);
+    if (stoken==",")
+        return Token(TokenType::COMMA,stoken);
     //numbers
     char sbegin = stoken.at(0);
     if (isdigit(sbegin) || sbegin=='-' || sbegin=='+'){
@@ -51,9 +53,7 @@ Token Lexer::convert(const std::string& stoken){
     if (isalpha(sbegin) || sbegin=='_'){
         return convert_identifier(stoken);
     }
-    else {
-        throw ParseException("Invalid character: " + sbegin);
-    }
+    throw ParseException("Invalid character: " + std::string(1,sbegin));
 }
 
 Token Lexer::convert_number(const std::string& stoken){

@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <variant>
 #include "math/LacMatrix.hpp"
@@ -13,7 +14,9 @@ enum class TokenType{
     L_PAREN, 
     R_PAREN, 
     SEMICOLON,
-    MATRIX
+    COMMA,
+    MATRIX,
+    FUNCTION
 };
 
 enum class OperatorType{
@@ -72,19 +75,19 @@ struct Token {
 
     //visit detail
     //for identifiers
-    FunctionType func(){
+    const FunctionType func() const {
         return std::get<FunctionType>(content_);
     }
     //for numbers
-    double value(){
+    const double value() const {
         return std::get<double>(content_);
     }
     //for operators
-    OperatorType op(){
+    const OperatorType op() const {
         return std::get<OperatorType>(content_);
     }
     //for matrices;
-    LacMatrix matrix(){
+    const LacMatrix& matrix() const {
         return std::get<LacMatrix>(content_);
     }
 };

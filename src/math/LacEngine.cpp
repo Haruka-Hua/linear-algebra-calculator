@@ -29,6 +29,12 @@ LacMatrix operator -(const LacMatrix& a, const LacMatrix& b){
     return LacMatrix(a.matrix() - b.matrix());
 }
 LacMatrix operator *(const LacMatrix& a, const LacMatrix& b){
+    if(a.isNumber()){
+        return static_cast<double>(a) * b;
+    }
+    if(b.isNumber()){
+        return a * static_cast<double>(b);
+    }
     checkMultiplyOperation(a,b);
     return LacMatrix(a.matrix() * b.matrix());
 }
