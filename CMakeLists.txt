@@ -48,13 +48,18 @@ add_library(lac_parser STATIC
     src/parser/Lexer.cpp
     src/parser/Parser.cpp
 )
+add_library(lac_cli STATIC
+    src/cli/cli.cpp
+)
 target_include_directories(lac_math PUBLIC ${CMAKE_SOURCE_DIR}/include/math)
 target_include_directories(lac_parser PUBLIC ${CMAKE_SOURCE_DIR}/include/parser)
+target_include_directories(lac_cli PUBLIC ${CMAKE_SOURCE_DIR}/include/cli)
 target_link_libraries(lac_math PUBLIC Eigen3::Eigen)
-target_link_libraries(lac_parser PUBLIC Eigen3::Eigen)
+target_link_libraries(lac_parser PUBLIC lac_math Eigen3::Eigen)
+target_link_libraries(lac_cli PUBLIC lac_math lac_parser)
 
-add_executable(lac_cli src/main.cpp)
-target_link_libraries(lac_cli PRIVATE lac_math lac_parser)
+add_executable(lac_cli_app src/cli/main.cpp)
+target_link_libraries(lac_cli_app PRIVATE lac_math lac_parser lac_cli)
 
 # 4. 单元测试目标（使用 GoogleTest + CTest）
 if(BUILD_TESTS)

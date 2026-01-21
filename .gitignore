@@ -10,9 +10,11 @@ out/
 *.iml
 cmake-build-*/
 *.user
+cmake/
 
 # 系统琐事
 .DS_Store
 Thumbs.db
 
 tmp/
+release/

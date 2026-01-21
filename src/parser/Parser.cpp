@@ -105,6 +105,7 @@ LacMatrix Parser::eval(const std::vector<Token> &tokens, int l, int r){
                 if(op_pos == l+1 && tokens[l].token_type_==TokenType::MATRIX
                     && tokens[l].text_!=""){
                     LacMatrix res = eval(tokens,op_pos+1,r);
+                    res.rename(tokens[l].text_);
                     memory_[tokens[l].text_] = res;
                     return res;
                 }
@@ -173,7 +174,9 @@ LacMatrix Parser::eval(const std::vector<Token> &tokens, int l, int r){
             case FunctionType::EIGEN:{
                 // todo: switch to a common version later
                 auto pair = LacEngine::eigenValuesSymmetric(eval(tokens,op_pos+2,r-1));
+                pair.first.rename("eigen_val_Ans");
                 memory_["eigen_val_Ans"] = pair.first;
+                pair.second.rename("eigen_vec_Ans");
                 memory_["eigen_vec_Ans"] = pair.second;
                 return pair.second;
             }

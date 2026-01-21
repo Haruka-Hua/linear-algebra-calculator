@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <vector>
 #include "parser/Token.hpp"
@@ -6,10 +7,10 @@ namespace Lac{
 
 class Lexer{
 public:
-    std::vector<Token> tokenize(const std::string& input);
+    static std::vector<Token> tokenize(const std::string& input);
 private:
-    Token convert(const std::string& stoken);
-    Token convert_number(const std::string& stoken);
-    Token convert_identifier(const std::string& stream);
+    static Token convert(const std::string& stoken);
+    static Token convert_number(const std::string& stoken);
+    static Token convert_identifier(const std::string& stream);
 };
 } //namespace Lac

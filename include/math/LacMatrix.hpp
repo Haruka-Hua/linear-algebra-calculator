@@ -30,9 +30,6 @@ public:
     const double& operator()(int r, int c) const;
     operator double() const;
     operator int() const;
-    Eigen::CommaInitializer<Eigen::MatrixXd> operator<<(double val){
-        return data_ << val;
-    }
     const Eigen::MatrixXd& matrix() const { return data_; }
     Eigen::MatrixXd& matrix() { return data_; }
 
