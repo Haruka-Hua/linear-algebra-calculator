@@ -115,7 +115,7 @@ bool Cli::execute(const Command& cmd){
 }
 
 void Cli::handle_help(const std::vector<std::string> args) const{
-    //todo: display help msg
+    //display help msg
     if(args.empty()){
         std::cout << "Available commands:\n"
                   << "[help]    <command>        - Show help information\n"
